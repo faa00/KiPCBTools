@@ -1,0 +1,37 @@
+{
+    "$schema": "https://go.kicad.org/pcm/schemas/v1",
+    "name": "PCBTools915",
+    "description": "Kicad PCB Tool For 0x915",
+    "description_full": "Free-Angle-DiffPair, ..",
+    "identifier": "com.github.0x915.kicad-rf-tools",
+    "type": "plugin",
+    "author": {
+        "name": "0x915",
+        "contact": {
+            "email": "0x915@outlook.com"
+        }
+    },
+    "license": "GPL-2.0",
+    "resources": {
+        "Github": "https://github.com/0x915/KiPCBTools",
+        "Readme": "https://github.com/0x915/KiPCBTools/blob/main/README.md"
+    },
+    "tags": [
+        "pcbnew",
+        "diffpair",
+        "tools"
+    ],
+    "versions": [
+        {
+            "version": "0.8.0",
+            "status": "development",
+            "kicad_version": "8.0",
+            "download_url": "https://github.com/0x915/KiPCBTools/releases/download/v0.8.0/KiPCBTools-0x915-v0.8.0.zip",
+            "platforms": [
+                "linux",
+                "macos",
+                "windows"
+            ]
+        }
+    ]
+}
