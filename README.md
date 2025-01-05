@@ -23,11 +23,11 @@ How to use
 > <img src="https://github.com/user-attachments/assets/4a24ec38-2c23-4e1e-98a1-fdd1b098aaf4" width="480px">  
 
 基本演示 / Example
-> 1. 输入线段基本模型  
+> 1. 输入线段基本模型 / Input tracks basic template
 > 	<img src="https://github.com/user-attachments/assets/61a57215-92d1-4079-9f92-c1afc8e45930" width="480px">
 
-> 2. 所选区域头和尾都有差分对  
+> 2. 所选区域头和尾都有差分对 / differential pairs on both ends
 > 	<img src="https://github.com/user-attachments/assets/9d40940b-b2c4-40a0-bb3a-05e4a244b43f" width="480px">
 
-> 3. 所选区域仅头部有差分对  
+> 3. 所选区域仅头部有差分对 / only one differential pair
 > 	<img src="https://github.com/user-attachments/assets/8ae0bc44-3d5b-4bde-a8d1-9847c4459814" width="480px">   
