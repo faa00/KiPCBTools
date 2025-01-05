@@ -26,7 +26,7 @@
             "version": "0.8.0",
             "status": "development",
             "kicad_version": "8.0",
-            "download_url": "https://github.com/0x915/KiPCBTools/releases/download/v0.8.0/KiPCBTools-0x915-v0.8.0.zip",
+            "download_url": "https://github.com/0x915/KiPCBTools/releases/download/dev/KiPCBTools-0x915-v0.8.0.zip",
             "platforms": [
                 "linux",
                 "macos",
