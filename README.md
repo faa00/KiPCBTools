@@ -22,8 +22,8 @@ How to use
 效果参考 / Demo
 > <img src="https://github.com/user-attachments/assets/4a24ec38-2c23-4e1e-98a1-fdd1b098aaf4" width="480px">  
 
-基本演示 / Example
-> 1. 输入线段基本模型 / Input tracks basic template
+基本演示 / Example1
+> 1. 输入线路基本模型 / input(tracks) output(new+adjust) application
 > 	<img src="https://github.com/user-attachments/assets/61a57215-92d1-4079-9f92-c1afc8e45930" width="480px">
 
 > 2. 所选区域头和尾都有差分对 / differential pairs on both ends
@@ -31,3 +31,12 @@ How to use
 
 > 3. 所选区域仅头部有差分对 / only one differential pair
 > 	<img src="https://github.com/user-attachments/assets/8ae0bc44-3d5b-4bde-a8d1-9847c4459814" width="480px">   
+
+调整演示 / Example2
+> 1. 合并线路输入模型 / input(tracks) output(adjust) application
+>   <img src="https://github.com/user-attachments/assets/4112692c-5783-4701-9482-3d8ab21c7b50" width="480px">
+
+> 2. 两条差分线合并 / merge two differential pairs
+>   <img src="https://github.com/user-attachments/assets/49167115-05db-4ec9-b8ad-3fadbf7d1b13" width="480px">
+
+
