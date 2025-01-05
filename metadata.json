@@ -3,7 +3,7 @@
     "name": "PCBTools915",
     "description": "Kicad PCB Tool For 0x915",
     "description_full": "Free-Angle-DiffPair, ..",
-    "identifier": "com.github.0x915.kicad-rf-tools",
+    "identifier": "com.github.0x915.pcbtools",
     "type": "plugin",
     "author": {
         "name": "0x915",
