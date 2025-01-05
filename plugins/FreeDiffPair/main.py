@@ -3,13 +3,14 @@ import wx
 import sys
 import pcbnew
 import timeit
-from .VecSolver import PluginMain
 from .include import G_PLUGIN_LOG_FILE
+from .VecSolver import PluginMain
 from .logger import getLogger
 
 
+
 logger = getLogger("main")
-logger.addFileHandler(G_PLUGIN_LOG_FILE)
+logger.addFileHandler(G_PLUGIN_LOG_FILE,'w')
 logger.debug(f"写入文件 {os.path.realpath(G_PLUGIN_LOG_FILE)} ")
 logger.debug("...\n\n")
 

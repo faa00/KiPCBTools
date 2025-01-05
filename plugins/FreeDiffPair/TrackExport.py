@@ -85,12 +85,12 @@ class TPoint2i:
             ptype = track.ptype
             # 端点类型终点
             if ptype == self.TRACK_END_POINT:
-                logger.info(f"(0x{id(tobj):X}).SetEnd   ({self._x:+}, {self._y:+}) {tobj}")
+                logger.info(f"(0x{id(tobj):X}).SetEnd   ({self._x:+}, {self._y:+})")
                 tobj.SetEnd(Vec2D(self._x, self._y))
                 continue
             # 端点类型起点
             if ptype == self.TRACK_START_POINT:
-                logger.info(f"(0x{id(tobj):X}).SetStart ({self._x:+}, {self._y:+}) {tobj}")
+                logger.info(f"(0x{id(tobj):X}).SetStart ({self._x:+}, {self._y:+})")
                 tobj.SetStart(Vec2D(self._x, self._y))
                 continue
             logger.error(f"<0x{id(tobj):X}> 不存在的端点类型({ptype}) 不会执行任何操作.")

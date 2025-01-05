@@ -1,8 +1,7 @@
-from typing import Dict, TextIO
-# import colorlog
+from typing import TextIO
+
 import logging
 import sys
-import os
 
 
 class color:
@@ -107,20 +106,9 @@ NOTSET = 0
 class DEFAULT_CONFIG:
     LOG_LEVEL = NOTSET
     DATE_FORMAT: str = "%y%m%d %H:%M:%S"
-    FMT_STREAM: str = "%(log_color)s[%(asctime)s %(msecs)3d][%(levelname)1s]%(reset)s <%(name)s> %(message)s"
-    FMT_FILE: str = "%(log_color)s[%(asctime)s.%(msecs)3d][%(levelname)1s]%(reset)s <%(name)s> %(message)s"
+    FMT_STREAM: str = "[%(asctime)s %(msecs)3d][%(levelname)1s] <%(name)s> %(message)s"
+    FMT_FILE: str = "[%(asctime)s.%(msecs)3d][%(levelname)1s] <%(name)s> %(message)s"
     STREAM: TextIO | None = sys.stdout
-    COLORS_CONFIG: Dict[str, str] = {
-        "#": "bg_light_green,black,bold",
-        "F": "bg_red,black,bold",
-        "C": "bg_purple,white,bold",
-        "E": "red,bold",
-        "W": "yellow",
-        "I": "light_green",
-        "D": "light_black",
-        "T": "light_blue",
-    }
-
 
 class EnhancedLogger(logging.Logger):
     class _RE_COLOR:
@@ -306,20 +294,11 @@ class EnhancedLogger(logging.Logger):
         encoding: str = "UTF-8",
         fmt: str = DEFAULT_CONFIG.FMT_FILE,
         datefmt: str = DEFAULT_CONFIG.DATE_FORMAT,
-        log_colors: Dict[str, str] = DEFAULT_CONFIG.COLORS_CONFIG,
     ):
         handler = logging.FileHandler(filename=filename, mode=mode, encoding=encoding)
         handler.setLevel(self.getEffectiveLevel())
         handler.setFormatter(
-            # colorlog.ColoredFormatter(
-            #     fmt=fmt,
-            #     datefmt=datefmt,
-            #     log_colors=log_colors,
-            # )
-            logging.Formatter(
-                fmt=fmt,
-                datefmt=datefmt,
-            )
+            logging.Formatter(fmt=fmt, datefmt=datefmt)
         )
 
         for h in self.handlers:
@@ -337,19 +316,14 @@ class EnhancedLogger(logging.Logger):
         stream=DEFAULT_CONFIG.STREAM,
         fmt: str = DEFAULT_CONFIG.FMT_STREAM,
         datefmt: str = DEFAULT_CONFIG.DATE_FORMAT,
-        log_colors: Dict[str, str] = DEFAULT_CONFIG.COLORS_CONFIG,
     ):
         stdout_handler = logging.StreamHandler(stream)
         stdout_handler.setLevel(self.getEffectiveLevel())
+
         stdout_handler.setFormatter(
-            # colorlog.ColoredFormatter(
-            # fmt=fmt,
-            # datefmt=datefmt,
-            # log_colors=log_colors,
-            logging.Formatter(
-                fmt=fmt,
-                datefmt=datefmt,
-            ))
+
+            logging.Formatter(fmt=fmt, datefmt=datefmt)
+        )
 
         for h in self.handlers:
             if not isinstance(h, logging.StreamHandler):
