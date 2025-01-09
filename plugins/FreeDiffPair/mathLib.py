@@ -41,7 +41,13 @@ G_ANGLE_DEG_FLOAT_DIGITS = 12
 
 
 class Rad:
-    PRINT_FLOAT_DIGIT_NUM = 12
+    PRINT_FLOAT_DIGIT_NUM = 6
+
+    DEF_0DEG = 0
+    DEF_90DEG = 0.5 * math.pi
+    DEF_180DEG = math.pi
+    DEF_270DEG = 1.5 * math.pi
+    DEF_360DEG = 2 * math.pi
 
     def __init__(self, rad: int | float) -> None:
         self._v = self.toOneCycle(rad)
@@ -259,11 +265,10 @@ class Vec2D:
 
     @staticmethod
     def isParallel(a: "Vec2D", b: "Vec2D", rad_tolerance=G_ANGLE_RAD_TOLERANCE) -> int:
-        dRad = Vec2D.GetIncludedAngle(a, b)
-        if abs(dRad.value) <= rad_tolerance:
+        dRad = abs(Vec2D.GetIncludedAngle(a, b).value)
+        if (dRad < rad_tolerance) or (abs(Rad.DEF_360DEG - dRad) < rad_tolerance):
             return 1
-        dRad = Vec2D.GetIncludedAngle(a, -b)
-        if abs(dRad.value) <= rad_tolerance:
+        if abs(Rad.DEF_180DEG - dRad) < rad_tolerance:
             return -1
         return 0
 

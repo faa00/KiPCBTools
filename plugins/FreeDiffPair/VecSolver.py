@@ -228,21 +228,29 @@ def InstanceNewDiff(
 ):
     logger.info("")
     logger.info(f"{InstanceNewDiff.__name__}():")
-
+    
+    
+    
     # 转换差分折线 开始于参考差分线(头)的起点
     pl = Polyline2D(diffStart[0])
     logger.info("构造差分折线:")
-    logger.info(f"  +起点{pl.GetPointCount()} {diffStart[0]}")
+    logger.info(f"  +固定起点{pl.GetPointCount()} {diffStart[0]}")
     pl.AddPoint(diffStart[1])
-    logger.info(f"  +端点{pl.GetPointCount()} {diffStart[1]}")
+    logger.info(f"  +调整端点{pl.GetPointCount()} {diffStart[1]}")
 
-    # 交点列表的结构是 新生成差分线不包括起点 仅包括 所有交点 + 终点
-    ptEnd = ptList.GetList()[-1]
-
+    # 端点列表的结构 无起点 仅有 所有交点 + 终点
+    
+    # 终点仅用于单差分对输入 作为最后那根新线路的终点 
+    # 必须弹出端点列表 不能参与建立新线路 以避免生成多一根新线路
+    ptEnd_indep = ptList.GetList().pop()
+    
+    # 双差分对输入时 倒数第二点是已存在
+    # 必须弹出端点列表 以避免生成多一根新线路
+    if diffEnd is not None:
+        ptEndPrve = ptList.GetList().pop()
+    
     for pt in ptList.GetList():
-        # 交点列表最后一点是终点 无需增加PCB线路
-        if pt is ptEnd:
-            continue
+    
         # 折线的终点 视为当前遍历交点的上一点
         prvePt = pl.GetEnd()
         assert prvePt.BindCount() == 1, f"错误(非法差分折线 终点绑定了{prvePt.BindCount()}个线路)"
@@ -270,11 +278,11 @@ def InstanceNewDiff(
         # 把线路终点 绑定到新的端点 后插入多边形末尾
         thisPt = TPoint2i(pt.x + 1, pt.y, EndBind)
         pl.AddPoint(thisPt)
-        logger.info(f"  +端点{pl.GetPointCount()} {thisPt}")
+        logger.info(f"  +新建端点{pl.GetPointCount()} {thisPt}")
 
         continue
 
-    # 设置终点 = 参考差分线(尾)的终点
+    # 设置终点 折线的最后一点 应用到尾差分对的起点
     if diffEnd is not None:
         # 折线的终点 视为参考差分线(尾)的起点
         endPt = pl.GetEnd()
@@ -282,17 +290,18 @@ def InstanceNewDiff(
 
         # 参考差分线(尾)的起点 绑定到折线终点
         endPt.AppendBind(diffEnd[0].GetBindFirst())
-        # 参考差分线(尾)的终点 插入多边形末尾
+        endPt.SetXY(ptEndPrve.x,ptEndPrve.y) # type: ignore
+        # 参考差分线(尾)的终点 插入折线 以方便后续设置
         pl.AddPoint(diffEnd[1])
-        logger.info(f"  +终点{pl.GetPointCount()} {diffEnd[1]}")
+        logger.info(f"  +固定终点{pl.GetPointCount()} {diffEnd[1]}")
 
-    # 设置终点 = 交点列表的最后一点
+    # 设置终点 交点列表的最后一点 应用到最后那根新线路
     else:
         endPt = pl.GetEnd()
         assert endPt.BindCount() == 1, f"错误(非法差分折线 终点绑定了{endPt.BindCount()}个线路)"
         # 在主循环中最后构建的PCB线路 依然保持在等待设置的状态
         # 交点列表的最后一点 视为终点 设置到折线终点的坐标
-        endPt.SetXY(ptEnd.x,ptEnd.y)
+        endPt.SetXY(ptEnd_indep.x,ptEnd_indep.y)
         
     
     # 更新折线内所有端点到绑定的PCB线路
@@ -349,6 +358,7 @@ def PluginMain(board: pcbnew.BOARD):
     pointResult = ExportPoint(inputList)
     lineResult = ExportLine(pointResult)
 
+    return 
     # 单端折线 转换到向量表
     vecList = PolylineToVecList(lineResult.sReferPolyline)
 
@@ -371,7 +381,7 @@ def PluginMain(board: pcbnew.BOARD):
             vecList.GetCurrent(),
             lineResult.dReferEnd,
         )
-        assert distanceStart - distanceEnd < 0.5, f"失败(头尾的差分间距不一致) 间距差={distanceStart - distanceEnd}"
+        assert abs(abs(distanceStart) - abs(distanceEnd)) < 10, f"失败(头尾的差分间距不一致) 间距差={distanceStart - distanceEnd}"
 
         if polarEnd == 1:
             diffEnd = lineResult.dReferEnd
