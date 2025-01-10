@@ -358,7 +358,6 @@ def PluginMain(board: pcbnew.BOARD):
     pointResult = ExportPoint(inputList)
     lineResult = ExportLine(pointResult)
 
-    return 
     # 单端折线 转换到向量表
     vecList = PolylineToVecList(lineResult.sReferPolyline)
 
