@@ -24,19 +24,19 @@ Effect Reference/Demo
 
 Basic demonstration / Example1
 > 1. Enter the basic model of the line / input (tracks) output (new+adjust) application
-> <img src = "https://github.com/user-attachments/61a57215-92d1-4079-92-c1afc8e45930" width = "480px">>
+> 	<img src="https://github.com/user-attachments/assets/61a57215-92d1-4079-9f92-c1afc8e45930" width="480px">
 
 > 2. The selected area has differential pairs on both ends / differential pairs on both ends
-> <img src = "https://github.com/user-attachments/9d40940b-B2C4-40a0-BB3A 05e4a2443F" width = "480px">> 480px ">
+> 	<img src="https://github.com/user-attachments/assets/9d40940b-b2c4-40a0-bb3a-05e4a244b43f" width="480px">
 
 > 3. Only the header of the selected area has a differential pair / only one differential pair
-> <img src = "https://github.com/user-attachments/8ae0bc44-3d5b-4bde-a8d1-98459814" width = "480px">
+> 	<img src="https://github.com/user-attachments/assets/8ae0bc44-3d5b-4bde-a8d1-9847c4459814" width="480px">
 
 Adjust the demonstration / example2
 > 1. Merge Line Input Model / Input (Tracks) Output (Adjust) Application Application
-> <img src = "https://github.com/user-attachments/4112692C-5783-4701-948AB21C7B50" width = "480px">> 480px ">
+>   <img src="https://github.com/user-attachments/assets/4112692c-5783-4701-9482-3d8ab21c7b50" width="480px">
 
 > 2. Merge two differential pairs / merge two differential pairs
-> <img src="https://github.com/user-attachments/assets/49167115-05db-4ec9-b8ad-3fadbf7d1b13" width="480px">
+>   <img src="https://github.com/user-attachments/assets/49167115-05db-4ec9-b8ad-3fadbf7d1b13" width="480px">
 
 
