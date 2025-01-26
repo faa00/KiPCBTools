@@ -74,26 +74,26 @@ class TPoint2i:
     def GetBindFirst(self):
         return self._bindList[0]
 
-    # 更新所有绑定的线路对象
+    # Update all bound line objects
     def Update(self):
         if len(self._bindList) == 0:
-            logger.error(f"{self} 端点未绑定任何线段 不会执行任何操作")
+            logger.error(f"{self} endpoint does not bind any line segments and will not perform any operation")
             return
 
         for track in self._bindList:
             tobj = track.obj
             ptype = track.ptype
-            # 端点类型终点
+            # Endpoint type endpoint
             if ptype == self.TRACK_END_POINT:
                 logger.info(f"(0x{id(tobj):X}).SetEnd   ({self._x:+}, {self._y:+})")
                 tobj.SetEnd(Vec2D(self._x, self._y))
                 continue
-            # 端点类型起点
+            # End point type starting point
             if ptype == self.TRACK_START_POINT:
                 logger.info(f"(0x{id(tobj):X}).SetStart ({self._x:+}, {self._y:+})")
                 tobj.SetStart(Vec2D(self._x, self._y))
                 continue
-            logger.error(f"<0x{id(tobj):X}> 不存在的端点类型({ptype}) 不会执行任何操作.")
+            logger.error(f"<0x{id(tobj):X}> Non-existent endpoint type({ptype}) will perform no operation.")
         return
 
     def __str__(self) -> str:
@@ -212,19 +212,19 @@ def ExportInfo(pyTrackList: List[PY_PCB_TRACK]):
     logger.info("")
     logger.info(f"{ExportInfo.__name__}():")
 
-    logger.info("获取线路物理信息:")
+    logger.info("Get line physical information:")
     layer = pyTrackList[0].GetLayer()
     width = pyTrackList[0].GetWidth()
     for track in pyTrackList[1:]:
         ret_layer = track.GetLayer()
         ret_width = track.GetWidth()
         if layer != ret_layer:
-            assert "失败(线路不同层)"
+            assert "failure (different lines)"
         if width != ret_width:
-            assert "失败(线路宽度不一致)"
+            assert "Failed (line width is inconsistent)"
 
-    logger.info(f"  铜层 {pyTrackList[0].GetLayerName()}({layer})")
-    logger.info(f"  线宽 {width}(unit)")
+    logger.info(f"  copper layer {pyTrackList[0].GetLayerName()}({layer})")
+    logger.info(f"  width {width}(unit)")
     return ExportInfo_Result(layer, width)
 
 
@@ -248,22 +248,23 @@ def ExportPoint(pyTrackList: List[PY_PCB_TRACK]):
 
     def AddPoint(x, y, ptInfo: TPoint2i.bindInfo, ptList: List[TPoint2i]):
         for point in ptList:
-            # 端点存在 绑定线路
+            # The endpoint exists and the bound line
             if point.XYEQ(x, y):
                 point.AppendBind(ptInfo)
-                logger.info(f"  绑定到   {point}")
+                logger.info(f"  bind to   {point}")
                 return
             continue
-        # 增加到缓存 绑定线路
+        # Add to cache binding line
         obj = TPoint2i(x, y, ptInfo)
         ptList.append(obj)
-        logger.info(f"  新的端点 {obj}")
+        logger.info(f"  new endpoint {obj}")
 
-    # 获取 所有线段端点 合并相同点时绑定到对应对象
-    logger.info(f"输入 线路端点检查(x{len(pyTrackList)}):")
+    # When the endpoint of all line sections is the same point,
+    # it is bound to the corresponding object
+    logger.info(f"Input line endpoint check(x{len(pyTrackList)}):")
     for track in pyTrackList:
         logger.info(f"  {track}")
-        # 导入线路的起点
+        # From the starting point of the line
         ptStart = track.GetStart()
         AddPoint(
             ptStart.x,
@@ -271,7 +272,7 @@ def ExportPoint(pyTrackList: List[PY_PCB_TRACK]):
             TPoint2i.bindInfo(track, TPoint2i.TRACK_START_POINT),
             all_point_list,
         )
-        # 导入线路的终点
+        # Import the end point of the route
         ptEnd = track.GetEnd()
         AddPoint(
             ptEnd.x,
@@ -280,93 +281,98 @@ def ExportPoint(pyTrackList: List[PY_PCB_TRACK]):
             all_point_list,
         )
 
-    logger.info("端点捕获列表:")
+    logger.info("Endpoint capture list:")
     indep_point_list: List[TPoint2i] = []
     share_point_list: List[TPoint2i] = []
 
-    # 导出 折线端点列表 独立线列表
+    # Export polyline endpoint list independent line list
     for point in all_point_list:
         logger.info(f"  {point}")
         count = point.BindCount()
-        assert count <= 2, "端点被超过两根线共享."
+        assert count <= 2, "Endpoint is shared by more than two lines."
         if count == 1:
             indep_point_list.append(point)
         elif count == 2:
             share_point_list.append(point)
         continue
 
-    # 差分参考线加上参考多段线 最多有六个悬空端点(多段线x2 + 头差分线x2 + 尾差分线x2)
-    # 最少需要一根差分参考线 至少需要四个悬空端点(多段线x2 + 差分线x2)
-    assert len(share_point_list) != 0, "失败(不存在连续的多段线)"
-    assert len(indep_point_list) == 4 or len(indep_point_list) == 6, "失败(捕获不到四或六个悬空端点)"
+    # The differential reference line plus the reference polyline has up to
+    # six dangling endpoints (polyline x2 + head differential line x2 + tail
+    # differential line x2)
+    # At least one differential reference line requires at least
+    # four suspended endpoints (multi -segment line X2 + differential line X2)
+    assert len(share_point_list) != 0, "Failed (no continuous polyline)"
+    assert len(indep_point_list) == 4 or len(indep_point_list) == 6, "Failure (less than four or six suspended endpoints)"
 
     track_diff_list: List[Tuple[TPoint2i, TPoint2i]] = []
 
     def FindALine(ptList: List[TPoint2i]):
         ret: Tuple[TPoint2i, TPoint2i] | None = None
-        # 在点列表中查找同一线段上的两端点
+        # Find the two ends on the same line in the point list
         for pt1 in ptList:
             for pt2 in ptList:
-                # 跳过自己
+                # Jump over yourself
                 if pt1 is pt2:
                     continue
-                # 端点不在同一线段 未命中参考差分线
+                # The endpoint is not in the same line, and the differential line is not hit
                 if pt1.GetBindFirst().obj is not pt2.GetBindFirst().obj:
                     continue
-                # 端点属性不能相同 (设计上不该相同)
+                # The endpoint attribute cannot be the same (the design should not be the same)
                 if pt1.GetBindFirst().ptype == pt2.GetBindFirst().ptype:
                     continue
-                # 仅记录找到的第一条线段 然后从输入列表中移除两端点
+                # Only record the first line segment found and remove both ends from the input list
                 ret = (pt1, pt2)
                 ptList.remove(pt1)
                 ptList.remove(pt2)
-                # 立刻返回
+                # Return immediately
                 return ret
             continue
-        # 找不到任何线段
+        # No line segments found
         return None
 
     line_count = len(pyTrackList)
 
-    # 导出 第一根 差分参考线
+    # Export the first differential reference line
     track1d_2pt = FindALine(indep_point_list)
-    assert track1d_2pt is not None, "失败(未找到参考差分线)"
+    assert track1d_2pt is not None, "Failed (reference differential line not found)"
 
-    # 插入第一参考线列表
+    # Insert the first reference line list
     line_count -= 1
     track_diff_list.append(track1d_2pt)
-    logger.info("输出 参考差分线A:")
+    logger.info("Output reference differential line A:")
     logger.info(f"  {track1d_2pt[0].GetBindFirst().obj}")
     for point in track1d_2pt:
         logger.info(f"  {point}")
 
-    # 导出 第二根 差分参考线
+    # Export the second differential reference line
     track2d_2pt = FindALine(indep_point_list)
     if track2d_2pt is not None:
         line_count -= 1
-        # 插入第二参考线列表
+        # Insert second reference line list
         track_diff_list.append(track2d_2pt)
-        logger.info("输出 参考差分线B:")
+        logger.info("Output Reference Differential Line B:")
         logger.info(f"  {track2d_2pt[0].GetBindFirst().obj}")
         for point in track2d_2pt:
             logger.info(f"  {point}")
 
-    # 设计上 独立的线段 只允许有最多两根(头差分线+尾差分线)
-    assert FindALine(indep_point_list) is None, "失败(存在多余独立线段)"
+    # In design, only up to two independent line segments are allowed
+    # (head differential line + tail differential line)
+    assert FindALine(indep_point_list) is None, "failure (existing excess independent line segment)"
 
-    # 验证 折线端点的数量(总输入数量-参考差分线数量)
-    logger.info(f"输出 参考单端共享端点(x{len(share_point_list)}):")
+    # Verify the number of polyline endpoints (total input number -
+    # reference number of differential lines)
+    logger.info(f"Output reference single-ended shared endpoint (x{len(share_point_list)}):")
     for point in share_point_list:
         logger.info(f"  {point}")
 
-    # 设计上 有N条折线 就有N-1个端点
-    assert line_count - 1 == len(share_point_list), "失败(共享端点数量错误)"
+    # If there are N polylines in the design, there will be N-1 endpoints.
+    assert line_count - 1 == len(share_point_list), "Failed (wrong number of shared endpoints)"
 
-    # 构造 唯一的单端折线的两个端点
-    assert len(indep_point_list) == 2, "失败(悬空端点数量过多)"
+    # The two endpoints of the single - end fold line
+    assert len(indep_point_list) == 2, "Failed (too many dangling endpoints)"
     share_endpoint_2pt = indep_point_list[0], indep_point_list[1]
 
-    logger.info(f"输出 参考单端悬空端点(x{len(share_endpoint_2pt)}):")
+    logger.info(f"Output reference single-ended floating endpoint (x{len(share_endpoint_2pt)}):")
     for point in share_endpoint_2pt:
         logger.info(f"  {point}")
 
@@ -398,16 +404,17 @@ def ExportLine(obj: ExportPoint_Result):
     logger.info("")
     logger.info(f"{ExportLine.__name__}():")
 
-    # 验证 参考差分线数量
+    # Verify reference number of differential lines
     tdiff_count = len(track_diff_list)
-    assert tdiff_count == 1 or tdiff_count == 2, "错误(参考差分线不存在或超出支持数量)"
+    assert tdiff_count == 1 or tdiff_count == 2, "Error (reference differential line does not exist or exceeds supported number)"
 
     def getLineToPointDistanceSum(line: Tuple[TPoint2i, TPoint2i], pt: TPoint2i):
         d1 = math.sqrt(math.pow(line[0].x - pt.x, 2) + math.pow(line[0].y - pt.y, 2))
         d2 = math.sqrt(math.pow(line[1].x - pt.x, 2) + math.pow(line[1].y - pt.y, 2))
         return int(d1 + d2)
 
-    # 定义 第一条参考差分线为起点 第二条存在则为终点
+    # Define the first of reference differential lines as the starting
+    # point of the starting point is the ending point
     tdiff_start: Tuple[TPoint2i, TPoint2i] = track_diff_list[0]
     tdiff_end: Tuple[TPoint2i, TPoint2i] | None = None
     if len(track_diff_list) == 2:
@@ -416,40 +423,41 @@ def ExportLine(obj: ExportPoint_Result):
     ep1 = share_enpoint_2pt[0]
     ep2 = share_enpoint_2pt[1]
 
-    # 获取 端点 到 选定参考差分线两端点 的距离和
-    # 距离和最小的端点 定义为 多端线的起点
+    # Get the distance and the distance between the two ends of the
+    # differential line of the selection of the endpoint
+    # And the smallest endpoint are defined as the starting point of the multi-end line
     ptStart = ep1
     ptEnd = ep2
     if getLineToPointDistanceSum(tdiff_start, ep1) > getLineToPointDistanceSum(tdiff_start, ep2):
         ptStart = ep2
         ptEnd = ep1
 
-    # 构建 参考单端折线 起点
+    # From the starting point of a single-end fold line
     pl = Polyline2D(ptStart)
-    logger.info(f"输入 从点列表(x{len(share_point_list) + len(share_enpoint_2pt)})构建多边形:")
-    logger.info(f"  +起点{pl.GetPointCount()} {ptStart}")
+    logger.info(f"Input Construct polygon from point list (x{len(share_point_list) + len(share_enpoint_2pt)})构建多边形:")
+    logger.info(f"  + starting point {pl.GetPointCount()} {ptStart}")
 
-    # 折线的共享端点会绑定两个线对象
-    # 找到对侧端点后 获取线对象时
-    # 要过滤当前对象 以避免逆向寻找端点
+    # The shared endpoint of the polyline will bind two line objects
+    # When you find the opposite endpoint, get the line object
+    # To filter the current object to avoid reverse search for endpoints
 
     loop_break = len(share_point_list) + 2
     black_obj: PY_PCB_TRACK | None = None
     while True:
-        # 循环保护
+        # Cycle protection
         loop_break -= 1
-        assert loop_break > 0, "循环保护(构建折线时超出最大循环次数)"
+        assert loop_break > 0, "Circulation protection (the maximum number of cycles exceeds the maximum cycle when building a folding line)"
 
         cur_bind: TPoint2i.bindInfo | None = None
         for bind in pl.GetEnd().GetBindList():
-            # 设计上 最多会遍历出两个 绑定的线对象
-            # 流程上 上一次使用的对象应该被屏蔽 以避免逆向搜索
-            # 起点a0 对侧是终点a1 而a1对侧是b0或a0 不能搜索回a0 所以要屏蔽a0a1的线对象
+            # In terms of design, at most two bound line objects will be traversed.
+            # In terms of process, the last used object should be blocked to avoid reverse search
+            # The starting point A0 side is the end point A1 and the A1 side is B0 or A0 that cannot be searched for A0, so it must block the line object of A0A1
             if bind.obj is black_obj:
                 continue
             cur_bind = bind
 
-        # 设计上 末端点只绑定了一个线对象 上一次使用后要求屏蔽 本次将无对象 循环应结束
+        # In terms of design, only one line object is bound to the end point. Shielding is required after the last use. This time there will be no object and the loop should end.
         if cur_bind is None:
             break
 
@@ -457,37 +465,37 @@ def ExportLine(obj: ExportPoint_Result):
         cur_ptype = cur_bind.ptype
         cur_point: TPoint2i | None = None
         for pt in share_point_list:
-            # 存在匹配对侧端点 ptNext会保持None
+            # If there is a matching opposite endpoint, ptNext will remain None
             if pt.HasBind(cur_pobj, -cur_ptype) is False:
                 continue
-            # 插入线段的另一侧端点
+            # Insert the other endpoint of the line segment
             pl.AddPoint(pt)
             cur_point = pt
-            logger.info(f"  +端点{pl.GetPointCount()} {pt} → {cur_pobj}")
+            logger.info(f"  +endpoint {pl.GetPointCount()} {pt} → {cur_pobj}")
             break
 
-        # 存在下个末端端点 重置循环
+        # Existing the next end -end point reset loop
         if cur_point is not None:
             black_obj = cur_pobj
             continue
 
-        # 设计上 总端点数 - 未插入的终点 = 线的数量
-        assert pl.GetPointCount() - 1 == len(share_point_list), "输入线段存在连续性问题"
+        # Design total number of end points - uninserted end points = number of lines
+        assert pl.GetPointCount() - 1 == len(share_point_list), "There is a continuity problem in the input line segment"
 
         break
 
-    # 插入最后的端点
+    # Insert the final endpoint
     pl.AddPoint(ptEnd)
-    logger.info(f"  +终点{pl.GetPointCount()} {ptEnd} = {ptEnd.GetBindFirst().obj}")
+    logger.info(f"  +end {pl.GetPointCount()} {ptEnd} = {ptEnd.GetBindFirst().obj}")
 
-    logger.info("输出 参考单端折线:")
+    logger.info("Output reference single-ended polyline:")
     logger.info(f"  {pl}")
 
-    logger.info("输出 起始参考差分线:")
+    logger.info("Output Starting Reference Differential Line:")
     logger.info(f"  {tdiff_start[0]},{tdiff_start[1]}")
 
     if tdiff_end is not None:
-        logger.info("输出 结束参考差分线:")
+        logger.info("The output ends reference differential line:")
         logger.info(f"  {tdiff_end[0]},{tdiff_end[1]} ")
 
     return ExportLine_Result(

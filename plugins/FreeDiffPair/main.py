@@ -11,7 +11,7 @@ from .logger import getLogger
 
 logger = getLogger("main")
 logger.addFileHandler(G_PLUGIN_LOG_FILE,'w')
-logger.debug(f"写入文件 {os.path.realpath(G_PLUGIN_LOG_FILE)} ")
+logger.debug(f"written file {os.path.realpath(G_PLUGIN_LOG_FILE)} ")
 logger.debug("...\n\n")
 
 
@@ -31,7 +31,7 @@ class FreeAngleDifferentialPair(pcbnew.ActionPlugin):
         try:
             board = pcbnew.GetBoard()
             logger.debug(
-                f"插件耗时 {timeit.timeit(lambda: PluginMain(board), number=1):.3f}s\n",
+                f"plug-in time {timeit.timeit(lambda: PluginMain(board), number=1):.3f}s\n",
             )
 
         except AssertionError as e:
